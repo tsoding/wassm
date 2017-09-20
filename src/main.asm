@@ -123,7 +123,7 @@ args_check:
     mov rsi, 50
     call listen
 
-	;; TODO: safely quit on SIGINT
+    ;; TODO: safely quit on SIGINT
 loop:   
     mov rdi, [server_socket]
     mov rsi, 0
@@ -132,8 +132,8 @@ loop:
     mov [client_socket], rax
 
     mov rdi, html
-	call strlen
-	mov [html_size], rax
+    call strlen
+    mov [html_size], rax
 
     mov rdi, [client_socket],
     mov rsi, http
@@ -141,7 +141,7 @@ loop:
     mov rcx, html
     call dprintf
 
-	mov rdi, [client_socket]
+    mov rdi, [client_socket]
     call close
 
     jmp loop
