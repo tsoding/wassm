@@ -16,6 +16,10 @@
     extern inet_aton
     extern bind
     extern close
+    extern listen
+    extern accept
+    extern dprintf
+    extern strlen
 
     SECTION .data
 
@@ -34,7 +38,25 @@ server_addr:
     at sockaddr_in.sin_addr, dd 0
     at sockaddr_in.sin_zero, dq 0
     iend
-server_addr_size:
+html:
+    db "<!DOCTYPE html>", 10
+    db "<html>", 10
+    db "  <head>", 10
+    db "    <title>Hello, World</title>", 10
+    db "  </head>", 10
+    db "  <body>", 10
+    db "    <h1>Cyka, blyat!</h1>", 10
+    db "    <h2>Rush B</h2>", 10
+    db "  </body>", 10
+    db "</html>", 10, 0
+html_size:
+    dq 0
+http:
+    db "HTTP/1.1 200 OK", 13, 10
+    db "Content-Type: text/html", 13, 10
+    db "Content-Length: %d", 13, 10
+    db 13, 10
+    db "%s", 0
 
     SECTION .php
     SECTION .bss
@@ -45,6 +67,8 @@ argv:
 port:
     resq 1
 server_socket:
+    resq 1
+client_socket:
     resq 1
 
     SECTION .text
@@ -94,6 +118,33 @@ args_check:
     mov rsi, server_addr
     mov rdx, 16
     call bind
+
+    mov rdi, [server_socket]
+    mov rsi, 50
+    call listen
+
+	;; TODO: safely quit on SIGINT
+loop:   
+    mov rdi, [server_socket]
+    mov rsi, 0
+    mov rdx, 0
+    call accept
+    mov [client_socket], rax
+
+    mov rdi, html
+	call strlen
+	mov [html_size], rax
+
+    mov rdi, [client_socket],
+    mov rsi, http
+    mov rdx, [html_size]
+    mov rcx, html
+    call dprintf
+
+	mov rdi, [client_socket]
+    call close
+
+    jmp loop
 
     mov rdi, [server_socket]
     call close
