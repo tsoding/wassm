@@ -123,7 +123,7 @@ args_check:
     mov rsi, 50
     call listen
 
-    ;; TODO: safely quit on SIGINT
+    ;; TODO(#9): safely quit on SIGINT
 loop:
     mov rdi, [server_socket]
     mov rsi, 0
