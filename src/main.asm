@@ -21,9 +21,12 @@
     extern accept
     extern dprintf
     extern strlen
+    extern read
 
     SECTION .data
 
+printf_string:
+    db "%s", 10, 0
 server_started_message:
     db "The server was started on port %d", 10, 0
 html_served_message:
@@ -80,12 +83,17 @@ server_socket:
     resq 1
 client_socket:
     resq 1
+request_buffer:
+    resb 256
+request_buffer_size:    equ $-request_buffer-1
 
     SECTION .text
     global main
 
 main:
     push rbp
+
+    mov rdi, request_buffer_size
 
     mov [argc], rdi
     mov [argv], rsi
@@ -145,7 +153,7 @@ loop:
     call accept
     mov [client_socket], rax
 
-    ;; printf(html_served_message, inet_ntoa(client_addr.sin_addr))
+;; printf(html_served_message, inet_ntoa(client_addr.sin_addr))
     mov rdi, [client_addr + sockaddr_in.sin_addr]
     call inet_ntoa
 
@@ -153,18 +161,37 @@ loop:
     mov rsi, rax
     mov rax, 0
     call printf
-    ;; --
+;; --
 
     mov rdi, html
     call strlen
     mov [html_size], rax
 
+;; n = read(client_socket, &request_buffer, request_buffer_size)
+;; request_buffer[n] = 0A
+    mov rdi, [client_socket]
+    mov rsi, request_buffer
+    mov rdx, request_buffer_size
+    call read
+    mov byte [request_buffer + rax], 0
+    ;; TODO: check if read returns -1 and report an error
+;; --
+
+;; printf("%s\n", request_buffer)
+    mov rdi, printf_string
+    mov rsi, request_buffer
+    mov rax, 0
+    call printf
+;; --
+
+;; dprintf(client_socket, http, html_size, html)
     mov rdi, [client_socket],
     mov rsi, http
     mov rdx, [html_size]
     mov rcx, html
     mov rax, 0
     call dprintf
+;; --
 
     mov rdi, [client_socket]
     call close
