@@ -14,6 +14,7 @@
     extern socket
     extern htons
     extern inet_aton
+    extern inet_ntoa
     extern bind
     extern close
     extern listen
@@ -23,10 +24,10 @@
 
     SECTION .data
 
-program_name:
-    db "Program name: %s", 10, 0
-number:
-    db "Number: %d", 10, 0
+server_started_message:
+    db "The server was started on port %d", 10, 0
+html_served_message:
+    db "Served Cyka Blyat to %s", 10, 0
 usage:
     db "Usage: webapp <port>", 10, 0
 ip_address:
@@ -38,6 +39,15 @@ server_addr:
     at sockaddr_in.sin_addr, dd 0
     at sockaddr_in.sin_zero, dq 0
     iend
+client_addr:
+    istruc sockaddr_in
+    at sockaddr_in.sin_family, dw 0
+    at sockaddr_in.sin_port, dw 0
+    at sockaddr_in.sin_addr, dd 0
+    at sockaddr_in.sin_zero, dq 0
+    iend
+client_addr_size:
+    dd 16
 html:
     db "<!DOCTYPE html>", 10
     db "<html>", 10
@@ -93,7 +103,6 @@ main:
     ret
     ;; end
 args_check:
-
     mov rdi, [argv]
     mov rdi, [rdi + 8]
     call atoi
@@ -104,7 +113,6 @@ args_check:
     mov rdx, 0
     call socket
     mov [server_socket], rax
-    ;; TODO(#8): handle error in creating a socket
 
     mov rdi, [port]
     call htons
@@ -123,13 +131,26 @@ args_check:
     mov rsi, 50
     call listen
 
+    mov rdi, server_started_message
+    mov rsi, [port]
+    call printf
+
     ;; TODO(#9): safely quit on SIGINT
 loop:
     mov rdi, [server_socket]
-    mov rsi, 0
-    mov rdx, 0
+    mov rsi, client_addr
+    mov rdx, client_addr_size
     call accept
     mov [client_socket], rax
+
+    ;; printf(html_served_message, inet_ntoa(client_addr.sin_addr))
+    mov rdi, [client_addr + sockaddr_in.sin_addr]
+    call inet_ntoa
+
+    mov rdi, html_served_message
+    mov rsi, rax
+    call printf
+    ;; --
 
     mov rdi, html
     call strlen
