@@ -93,8 +93,6 @@ request_buffer_size:    equ $-request_buffer-1
 main:
     push rbp
 
-    mov rdi, request_buffer_size
-
     mov [argc], rdi
     mov [argv], rsi
 
