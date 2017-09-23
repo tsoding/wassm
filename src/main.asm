@@ -173,7 +173,7 @@ loop:
     mov rdx, request_buffer_size
     call read
     mov byte [request_buffer + rax], 0
-    ;; TODO: check if read returns -1 and report an error
+    ;; TODO(#16): check if read returns -1 and report an error
 ;; --
 
 ;; printf("%s\n", request_buffer)
