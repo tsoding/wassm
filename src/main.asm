@@ -23,10 +23,6 @@
 
     SECTION .data
 
-program_name:
-    db "Program name: %s", 10, 0
-number:
-    db "Number: %d", 10, 0
 usage:
     db "Usage: webapp <port>", 10, 0
 ip_address:
