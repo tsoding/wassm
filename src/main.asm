@@ -96,6 +96,7 @@ main:
     ;; begin
     mov rdi, 2
     mov rsi, usage
+    mov rax, 0
     call dprintf
 
     pop rbp
@@ -133,6 +134,7 @@ args_check:
 
     mov rdi, server_started_message
     mov rsi, [port]
+    mov rax, 0
     call printf
 
     ;; TODO(#9): safely quit on SIGINT
@@ -149,6 +151,7 @@ loop:
 
     mov rdi, html_served_message
     mov rsi, rax
+    mov rax, 0
     call printf
     ;; --
 
@@ -160,6 +163,7 @@ loop:
     mov rsi, http
     mov rdx, [html_size]
     mov rcx, html
+    mov rax, 0
     call dprintf
 
     mov rdi, [client_socket]
