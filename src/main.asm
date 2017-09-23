@@ -120,6 +120,7 @@ args_check:
     mov rdx, 0
     call socket
     mov [server_socket], rax
+    ;; TODO(#8): handle error in creating a socket
 
     mov rdi, [port]
     call htons
