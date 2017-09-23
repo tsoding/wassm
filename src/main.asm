@@ -104,7 +104,7 @@ args_check:
     mov rdx, 0
     call socket
     mov [server_socket], rax
-    ;; TODO: handle error in creating a socket
+    ;; TODO(#8): handle error in creating a socket
 
     mov rdi, [port]
     call htons
@@ -124,7 +124,7 @@ args_check:
     call listen
 
     ;; TODO: safely quit on SIGINT
-loop:   
+loop:
     mov rdi, [server_socket]
     mov rsi, 0
     mov rdx, 0
