@@ -23,6 +23,8 @@
 
     SECTION .data
 
+server_started_message:
+    db "The server was started on port %d", 10, 0
 usage:
     db "Usage: webapp <port>", 10, 0
 ip_address:
@@ -118,6 +120,10 @@ args_check:
     mov rdi, [server_socket]
     mov rsi, 50
     call listen
+
+    mov rdi, server_started_message
+    mov rsi, [port]
+    call printf
 
     ;; TODO(#9): safely quit on SIGINT
 loop:
