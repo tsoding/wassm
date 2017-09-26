@@ -1,4 +1,9 @@
+dist: trusty
 language: c
+addons:
+apt:
+  packages:
+    - nasm
 script:
   - cd src/
   - make
