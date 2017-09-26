@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/tsoding/wassm.svg?branch=master)](https://travis-ci.org/tsoding/wassm)
+
 # WASSM
 
 Web framework for x86_64 nasm.
