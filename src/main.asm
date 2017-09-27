@@ -42,8 +42,7 @@ html:
     db "    <h2>Rush B</h2>", 10
     db "  </body>", 10
     db "</html>", 10, 0
-html_size:
-    dq 0
+html_size: equ $-html-1
 http:
     db "HTTP/1.1 200 OK", 13, 10
     db "Content-Type: text/html", 13, 10
@@ -72,10 +71,6 @@ request_buffer_size:    equ $-request_buffer-1
 
 main:
     push rbp
-
-    call read_line_fd
-    mov rax, 0
-    ret
 
     mov [argc], rdi
     mov [argv], rsi
@@ -146,10 +141,6 @@ loop:
     call printf
 ;;; --
 
-    mov rdi, html
-    call strlen
-    mov [html_size], rax
-
 ;;; n = read(client_socket, &request_buffer, request_buffer_size)
     mov rax, 0
     mov rdi, [client_socket]
@@ -182,7 +173,7 @@ client_socket_read_check:
 ;;; dprintf(client_socket, http, html_size, html)
     mov rdi, [client_socket],
     mov rsi, http
-    mov rdx, [html_size]
+    mov rdx, html_size
     mov rcx, html
     mov rax, 0
     call dprintf
