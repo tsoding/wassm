@@ -1,26 +1,5 @@
-    struc sockaddr_in
-    .sin_family: resw 1
-    .sin_port: resw 1
-    .sin_addr: resd 1
-    .sin_zero: resq 1
-    endstruc
-
-    %define AF_INET 2
-    %define SOCK_STREAM 1
-
-    extern printf
-    extern dprintf
-    extern atoi
-    extern socket
-    extern htons
-    extern inet_aton
-    extern inet_ntoa
-    extern bind
-    extern close
-    extern listen
-    extern accept
-    extern dprintf
-    extern strlen
+    %include "c.hsm"
+    %include "io.hsm"
 
     SECTION .data
 
@@ -93,6 +72,10 @@ request_buffer_size:    equ $-request_buffer-1
 
 main:
     push rbp
+
+    call read_line_fd
+    mov rax, 0
+    ret
 
     mov [argc], rdi
     mov [argv], rsi
