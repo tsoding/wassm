@@ -13,6 +13,7 @@
     extern accept
     extern dprintf
     extern strlen
+    extern strcmp
 
     struc sockaddr_in
     .sin_family: resw 1
