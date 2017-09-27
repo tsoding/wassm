@@ -26,6 +26,8 @@
 
 printf_string:
     db "%s", 10, 0
+client_socket_error:
+    db "Error during reading from the client socket", 10, 0
 server_started_message:
     db "The server was started on port %d", 10, 0
 html_served_message:
@@ -151,7 +153,7 @@ loop:
     call accept
     mov [client_socket], rax
 
-;; printf(html_served_message, inet_ntoa(client_addr.sin_addr))
+;;; printf(html_served_message, inet_ntoa(client_addr.sin_addr))
     mov rdi, [client_addr + sockaddr_in.sin_addr]
     call inet_ntoa
 
@@ -159,39 +161,51 @@ loop:
     mov rsi, rax
     mov rax, 0
     call printf
-;; --
+;;; --
 
     mov rdi, html
     call strlen
     mov [html_size], rax
 
-;; n = read(client_socket, &request_buffer, request_buffer_size)
-;; request_buffer[n] = 0A
+;;; n = read(client_socket, &request_buffer, request_buffer_size)
     mov rax, 0
     mov rdi, [client_socket]
     mov rsi, request_buffer
     mov rdx, request_buffer_size
     syscall
-    mov byte [request_buffer + rax], 0
-    ;; TODO(#16): check if read returns -1 and report an error
-;; --
+;;; --
 
-;; printf("%s\n", request_buffer)
+    cmp rax, 0
+    jge client_socket_read_check
+
+    mov rdi, client_socket_error
+    mov rax, 0
+    call printf
+    jmp close_socket
+
+client_socket_read_check:
+
+;;; request_buffer[n] = 0
+    mov byte [request_buffer + rax], 0
+;;; --
+
+;;; printf("%s\n", request_buffer)
     mov rdi, printf_string
     mov rsi, request_buffer
     mov rax, 0
     call printf
-;; --
+;;; --
 
-;; dprintf(client_socket, http, html_size, html)
+;;; dprintf(client_socket, http, html_size, html)
     mov rdi, [client_socket],
     mov rsi, http
     mov rdx, [html_size]
     mov rcx, html
     mov rax, 0
     call dprintf
-;; --
+;;; --
 
+close_socket:
     mov rdi, [client_socket]
     call close
 
