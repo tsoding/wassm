@@ -1,4 +1,4 @@
-OBS=$(shell ls | grep asm | xargs -Ixx basename xx .asm | xargs -Ixx echo xx)
+OBS=$(shell ls | grep asm | xargs -Ixx basename xx .asm | xargs -Ixx echo xx.o)
 
 webapp: $(OBS)
 	gcc $(OBS) -o webapp
