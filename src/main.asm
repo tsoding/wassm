@@ -21,7 +21,6 @@
     extern accept
     extern dprintf
     extern strlen
-    extern read
 
     SECTION .data
 
@@ -168,10 +167,11 @@ loop:
 
 ;; n = read(client_socket, &request_buffer, request_buffer_size)
 ;; request_buffer[n] = 0A
+    mov rax, 0
     mov rdi, [client_socket]
     mov rsi, request_buffer
     mov rdx, request_buffer_size
-    call read
+    syscall
     mov byte [request_buffer + rax], 0
     ;; TODO(#16): check if read returns -1 and report an error
 ;; --
