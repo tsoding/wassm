@@ -1,26 +1,6 @@
-    struc sockaddr_in
-    .sin_family: resw 1
-    .sin_port: resw 1
-    .sin_addr: resd 1
-    .sin_zero: resq 1
-    endstruc
-
-    %define AF_INET 2
-    %define SOCK_STREAM 1
-
-    extern printf
-    extern dprintf
-    extern atoi
-    extern socket
-    extern htons
-    extern inet_aton
-    extern inet_ntoa
-    extern bind
-    extern close
-    extern listen
-    extern accept
-    extern dprintf
-    extern strlen
+    %include "c.inc"
+    %include "io.inc"
+    %include "http.inc"
 
     SECTION .data
 
@@ -52,6 +32,7 @@ client_addr:
     iend
 client_addr_size:
     dd 16
+
 html:
     db "<!DOCTYPE html>", 10
     db "<html>", 10
@@ -63,14 +44,30 @@ html:
     db "    <h2>Rush B</h2>", 10
     db "  </body>", 10
     db "</html>", 10, 0
-html_size:
-    dq 0
+html_size: equ $-html-1
+html_content_type:
+    db "text/html", 0
+
+css:
+    db "body { background: black }", 10, 0
+css_size:   equ $-css-1
+css_content_type:
+    db "text/css", 0
+
 http:
     db "HTTP/1.1 200 OK", 13, 10
-    db "Content-Type: text/html", 13, 10
+    db "Content-Type: %s", 13, 10
     db "Content-Length: %d", 13, 10
     db 13, 10
     db "%s", 0
+http_404:
+    db "HTTP/1.1 404 Not found", 13, 10
+    db "Content-Type: text/plain", 13, 10
+    db "Content-Length: 9", 13, 10
+    db 13, 10
+    db "NOT FOUND", 0
+index_route:    db "/", 0
+css_route:  db "/main.css", 0
 
     SECTION .php
     SECTION .bss
@@ -83,6 +80,8 @@ port:
 server_socket:
     resq 1
 client_socket:
+    resq 1
+current_route:
     resq 1
 request_buffer:
     resb 256
@@ -163,44 +162,53 @@ loop:
     call printf
 ;;; --
 
-    mov rdi, html
-    call strlen
-    mov [html_size], rax
-
-;;; n = read(client_socket, &request_buffer, request_buffer_size)
-    mov rax, 0
+;;; current_route = route_from_line(read_line_fd(client_socket))
     mov rdi, [client_socket]
-    mov rsi, request_buffer
-    mov rdx, request_buffer_size
-    syscall
+    call read_line_fd
+    mov rdi, rax
+    call route_from_line
+    mov [current_route], rax
 ;;; --
 
+    mov rdi, [current_route]
+    mov rsi, index_route
+    call strcmp
     cmp rax, 0
-    jge client_socket_read_check
+    jne check_css_route
 
-    mov rdi, client_socket_error
-    mov rax, 0
-    call printf
-    jmp close_socket
-
-client_socket_read_check:
-
-;;; request_buffer[n] = 0
-    mov byte [request_buffer + rax], 0
-;;; --
-
-;;; printf("%s\n", request_buffer)
-    mov rdi, printf_string
-    mov rsi, request_buffer
-    mov rax, 0
-    call printf
-;;; --
-
-;;; dprintf(client_socket, http, html_size, html)
+;;; dprintf(client_socket, http, html_content_type, html_size, html)
     mov rdi, [client_socket],
     mov rsi, http
-    mov rdx, [html_size]
-    mov rcx, html
+    mov rdx, html_content_type
+    mov rcx, html_size
+    mov r8, html
+    mov rax, 0
+    call dprintf
+;;; --
+    jmp close_socket
+
+check_css_route:
+    mov rdi, [current_route]
+    mov rsi, css_route
+    call strcmp
+    cmp rax, 0
+    jne not_found
+
+;;; dprintf(client_socket, http, css_size, css)
+    mov rdi, [client_socket],
+    mov rsi, http
+    mov rdx, css_content_type
+    mov rcx, css_size
+    mov r8, css
+    mov rax, 0
+    call dprintf
+;;; --
+    jmp close_socket
+
+not_found:
+;;; dprintf(client_socket, http, css_size, css)
+    mov rdi, [client_socket],
+    mov rsi, http_404
     mov rax, 0
     call dprintf
 ;;; --
