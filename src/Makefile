@@ -1,4 +1,4 @@
-# TODO: Generate header dependencies
+# TODO(#25): Generate header dependencies for Makefile
 #
 # See `nasm -M` for more info on that
 ASMS=$(shell ls | grep .asm)
