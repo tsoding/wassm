@@ -1,4 +1,8 @@
-OBS=$(shell ls | grep asm | xargs -Ixx basename xx .asm | xargs -Ixx echo xx.o)
+# TODO: Generate header dependencies
+#
+# See `nasm -M` for more info on that
+ASMS=$(shell ls | grep .asm)
+OBS=$(ASMS:.asm=.o)
 
 webapp: $(OBS)
 	gcc $(OBS) -o webapp
