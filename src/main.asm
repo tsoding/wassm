@@ -169,7 +169,6 @@ loop:
     call route_from_line
     mov [current_route], rax
 ;;; --
-    ;; TODO: free current_route after dispatching
 
     mov rdi, [current_route]
     mov rsi, index_route
