@@ -1,6 +1,6 @@
-    %include "c.hsm"
-    %include "io.hsm"
-    %include "http.hsm"
+    %include "c.inc"
+    %include "io.inc"
+    %include "http.inc"
 
     SECTION .data
 

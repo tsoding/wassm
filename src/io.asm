@@ -1,5 +1,5 @@
     ;; -*- mode: asm -*-
-    %include "c.hsm"
+    %include "c.inc"
     SECTION .data
 hello_world:    db "read_line_fd", 10, 0
 
