@@ -32,6 +32,7 @@ client_addr:
     iend
 client_addr_size:
     dd 16
+
 html:
     db "<!DOCTYPE html>", 10
     db "<html>", 10
@@ -44,12 +45,18 @@ html:
     db "  </body>", 10
     db "</html>", 10, 0
 html_size: equ $-html-1
+html_content_type:
+    db "text/html", 0
+
 css:
     db "body { background: black }", 10, 0
 css_size:   equ $-css-1
+css_content_type:
+    db "text/css", 0
+
 http:
     db "HTTP/1.1 200 OK", 13, 10
-    db "Content-Type: text/html", 13, 10
+    db "Content-Type: %s", 13, 10
     db "Content-Length: %d", 13, 10
     db 13, 10
     db "%s", 0
@@ -170,11 +177,12 @@ loop:
     cmp rax, 0
     jne check_css_route
 
-;;; dprintf(client_socket, http, html_size, html)
+;;; dprintf(client_socket, http, html_content_type, html_size, html)
     mov rdi, [client_socket],
     mov rsi, http
-    mov rdx, html_size
-    mov rcx, html
+    mov rdx, html_content_type
+    mov rcx, html_size
+    mov r8, html
     mov rax, 0
     call dprintf
 ;;; --
@@ -190,8 +198,9 @@ check_css_route:
 ;;; dprintf(client_socket, http, css_size, css)
     mov rdi, [client_socket],
     mov rsi, http
-    mov rdx, css_size
-    mov rcx, css
+    mov rdx, css_content_type
+    mov rcx, css_size
+    mov r8, css
     mov rax, 0
     call dprintf
 ;;; --
