@@ -3,7 +3,6 @@
 # See `nasm -M` for more info on that
 CC=gcc
 cc=nasm
-OS := $(shell uname)
 
 ASM_FILES=$(wildcard src/*.asm)
 OBJ_FILES=$(ASM_FILES:.asm=.o)
