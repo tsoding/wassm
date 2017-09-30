@@ -5,5 +5,5 @@ addons:
     packages:
       - nasm
 script:
-  - cd src/
   - make
+  - make test
