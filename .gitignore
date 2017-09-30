@@ -1,0 +1,3 @@
+*.o
+src/webapp
+test/test

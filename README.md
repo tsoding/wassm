@@ -7,7 +7,7 @@ Web framework for x86_64 nasm.
 ## Quick Start
 
 ```console
-$ cd src
 $ make
-$ ./webapp 8080
+$ make test
+$ ./src/webapp 8080
 ```
