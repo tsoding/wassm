@@ -7,8 +7,19 @@ OBJ_FILES=$(ASM_FILES:.asm=.o)
 TEST_ASM_FILES=$(wildcard test/*.asm)
 TEST_OBJ_FILES=$(TEST_ASM_FILES:.asm=.o)
 
+CC = gcc
+
+# $(call check_cc_option,<option>)
+define check_cc_option
+$(shell printf "int main(void){ return 0; }\n" \
+        | $(CC) -Wall -Werror -x c $(1) -c - -o /dev/null 2> /dev/null \
+        && printf -- "%s" $(1))
+endef
+
+LDFLAGS += $(call check_cc_option,-no-pie)
+
 src/webapp: $(OBJ_FILES)
-	gcc $(OBJ_FILES) -o src/webapp
+	gcc $(LDFLAGS) $(OBJ_FILES) -o src/webapp
 
 test/test: $(TEST_OBJ_FILES)
 	gcc $(TEST_OBJ_FILES) -o test/test
