@@ -2,7 +2,7 @@
 #
 # See `nasm -M` for more info on that
 CC=gcc
-cc=nasm
+AS=nasm
 
 ASM_FILES=$(wildcard src/*.asm)
 OBJ_FILES=$(ASM_FILES:.asm=.o)
@@ -19,7 +19,7 @@ test/test: $(TEST_OBJ_FILES)
 	$(CC) $(TEST_OBJ_FILES) -o test/test
 
 %.o: %.asm
-	$(cc) -Isrc/ -f elf64 -g -F dwarf $<
+	$(AS) -Isrc/ -f elf64 -g -F dwarf $<
 
 test: test/test
 	./test/test
