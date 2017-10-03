@@ -38,6 +38,7 @@ html:
     db "<html>", 10
     db "  <head>", 10
     db "    <title>Hello, World</title>", 10
+    db "    <style> * { background: black; color: white } </style>", 10
     db "  </head>", 10
     db "  <body>", 10
     db "    <h1>Cyka, blyat!</h1>", 10
@@ -49,7 +50,8 @@ html_content_type:
     db "text/html", 0
 
 css:
-    db "body { background: black }", 10, 0
+	db "body { background: black }", 10
+	db "p { color: white }", 10, 0
 css_size:   equ $-css-1
 css_content_type:
     db "text/css", 0
