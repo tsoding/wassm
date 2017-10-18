@@ -1,6 +1,7 @@
     %include "c.inc"
-    %include "io.inc"
     %include "http.inc"
+
+    %define REQUEST_BUFFER_CAPACITY 8192
 
     SECTION .data
 
@@ -50,8 +51,8 @@ html_content_type:
     db "text/html", 0
 
 css:
-	db "body { background: black }", 10
-	db "p { color: white }", 10, 0
+    db "body { background: black }", 10
+    db "p { color: white }", 10, 0
 css_size:   equ $-css-1
 css_content_type:
     db "text/css", 0
@@ -71,6 +72,10 @@ http_404:
 index_route:    db "/", 0
 css_route:  db "/main.css", 0
 
+request_buffer:
+    db "/", 0
+request_buffer_size: equ $-request_buffer
+
     SECTION .php
     SECTION .bss
 argc:
@@ -85,9 +90,12 @@ client_socket:
     resq 1
 current_route:
     resq 1
-request_buffer:
-    resb 256
-request_buffer_size:    equ $-request_buffer-1
+request_parsing_ptr:
+    resq 1
+request_uri_end:
+    resq 1
+prev_byte:
+    resb 1
 
     SECTION .text
     global main
@@ -164,15 +172,59 @@ loop:
     call printf
 ;;; --
 
-;;; current_route = route_from_line(read_line_fd(client_socket))
-    mov rdi, [client_socket]
-    call read_line_fd
-    mov rdi, rax
-    call route_from_line
-    mov [current_route], rax
+;;; request_buffer_size = read(client_socket, request_buffer, REQUEST_BUFFER_CAPACITY)
+    ;; mov rdi, [client_socket]
+    ;; mov rsi, request_buffer
+    ;; mov rdx, REQUEST_BUFFER_CAPACITY
+    ;; call read
+    ;; mov [request_buffer_size], rax
 ;;; --
 
-    mov rdi, [current_route]
+;;; request_buffer[request_buffer_size] = 0
+    ;; mov rax, [request_buffer_size]
+    ;; mov byte [request_buffer + rax], 0
+;;; --
+
+;;; request_parsing_ptr = request_buffer
+    mov qword [request_parsing_ptr], request_buffer
+;;; --
+
+;;; request_parsing_ptr = drop_sp(request_parsing_ptr)
+    mov rdi, [request_parsing_ptr]
+    call drop_sp
+    mov [request_parsing_ptr], rax
+;;; --
+
+;;; request_parsing_ptr = parse_method(request_parsing_ptr)
+    mov rdi, [request_parsing_ptr]
+    call parse_method
+    mov [request_parsing_ptr], rax
+;;; --
+
+;;; request_parsing_ptr = drop_sp(request_parsing_ptr)
+    mov rdi, [request_parsing_ptr]
+    call drop_sp
+    mov [request_parsing_ptr], rax
+;;; --
+
+;;; request_uri_end = parse_request_uri(request_parsing_ptr)
+    mov rdi, [request_parsing_ptr]
+    call parse_request_uri
+    mov [request_uri_end], rax
+;;; --
+
+;;; prev_byte = *request_uri_end
+    ;; mov rax, [request_uri_end]
+    ;; mov al, [rax]
+    ;; mov byte [prev_byte], al
+;;; --
+
+;;; *request_uri_end = 0
+    ;; mov rax, [request_uri_end]
+    ;; mov byte [rax], 0
+;;; ---
+
+    mov rdi, [request_parsing_ptr]
     mov rsi, index_route
     call strcmp
     cmp rax, 0
@@ -190,7 +242,7 @@ loop:
     jmp close_socket
 
 check_css_route:
-    mov rdi, [current_route]
+    mov rdi, [request_parsing_ptr]
     mov rsi, css_route
     call strcmp
     cmp rax, 0
@@ -218,6 +270,10 @@ not_found:
 close_socket:
     mov rdi, [client_socket]
     call close
+
+    ;; mov rbx, [request_uri_end]
+    ;; mov al, [prev_byte]
+    ;; mov [rbx], al
 
     jmp loop
 

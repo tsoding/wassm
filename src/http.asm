@@ -1,15 +1,19 @@
     ;; -*- mode: asm -*-
     SECTION .data
-route:
-    db "/", 0
     SECTION .text
     global route_from_line
-    ;; route_from_line should deallocate input string
-route_from_line:
-    ;; TODO(#27): Implement route_from_line
-    ;;
-    ;; This function takes a string that represents a status line of an HTTP request and
-    ;; returns the route of the request. It also frees the input string. The output string should be
-    ;; freed by the caller
-    mov rax, route
+    global drop_sp
+    global parse_method
+    global parse_request_uri
+drop_sp:
+    ;; TODO(#38): Implement drop_sp function
+    mov rax, rdi
+    ret
+parse_method:
+    ;; TODO(#39): Implement parse_method function
+    mov rax, rdi
+    ret
+parse_request_uri:
+    ;; TODO(#40): Implement parse_request_uri function
+    mov rax, rdi
     ret

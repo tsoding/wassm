@@ -14,6 +14,7 @@
     extern dprintf
     extern strlen
     extern strcmp
+    extern read
 
     struc sockaddr_in
     .sin_family: resw 1
