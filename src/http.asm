@@ -6,7 +6,7 @@
     global parse_method
     global parse_request_uri
 drop_sp:
-    ;; TODO: implement drop_sp function
+    ;; TODO(#38): Implement drop_sp function
     mov rax, rdi
     ret
 parse_method:
