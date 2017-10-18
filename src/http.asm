@@ -14,6 +14,6 @@ parse_method:
     mov rax, rdi
     ret
 parse_request_uri:
-    ;; TODO: implement parse_request_uri function
+    ;; TODO(#40): Implement parse_request_uri function
     mov rax, rdi
     ret
