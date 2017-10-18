@@ -1,5 +1,4 @@
     %include "c.inc"
-    %include "io.inc"
     %include "http.inc"
 
     %define REQUEST_BUFFER_CAPACITY 8192
