@@ -10,7 +10,7 @@ drop_sp:
     mov rax, rdi
     ret
 parse_method:
-    ;; TODO: implement parse_method function
+    ;; TODO(#39): Implement parse_method function
     mov rax, rdi
     ret
 parse_request_uri:
