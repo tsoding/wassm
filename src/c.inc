@@ -1,4 +1,4 @@
-;; -*- mode: asm -*-
+;;; -*- mode: nasm -*-
 
     extern printf
     extern dprintf

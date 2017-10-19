@@ -1,4 +1,4 @@
-    ;; -*- mode: asm -*-
+;;; -*- mode: nasm -*-
     SECTION .data
     SECTION .text
     global route_from_line
