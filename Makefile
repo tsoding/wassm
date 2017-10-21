@@ -25,7 +25,10 @@ src/webapp: $(OBJ_FILES)
 test/test: $(TEST_OBJ_FILES) $(TESTED_OBJ_FILES)
 	gcc $(TEST_OBJ_FILES) $(TESTED_OBJ_FILES) -o test/test
 
-%.o: %.asm
+src/%.o: src/%.asm
+	nasm -Isrc/ -f elf64 -g -F dwarf $<
+
+test/%.o: test/%.asm
 	nasm -Isrc/ -Itest/ -f elf64 -g -F dwarf $<
 
 test: test/test
