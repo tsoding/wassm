@@ -1,14 +1,22 @@
 ;;; -*- mode: nasm -*-
     SECTION .data
     SECTION .text
-    global route_from_line
     global drop_sp
     global parse_method
     global parse_request_uri
+
 drop_sp:
-    ;; TODO(#38): Implement drop_sp function
+    cmp byte [rdi], 0x20
+    jne drop_sp_end
+
+    inc rdi
+
+    jmp drop_sp
+
+drop_sp_end:
     mov rax, rdi
     ret
+
 parse_method:
     ;; TODO(#39): Implement parse_method function
     mov rax, rdi

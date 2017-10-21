@@ -6,6 +6,7 @@ OBJ_FILES=$(ASM_FILES:.asm=.o)
 
 TEST_ASM_FILES=$(wildcard test/*.asm)
 TEST_OBJ_FILES=$(TEST_ASM_FILES:.asm=.o)
+TESTED_OBJ_FILES=src/http.o
 
 CC = gcc
 
@@ -21,11 +22,14 @@ LDFLAGS += $(call check_cc_option,-no-pie)
 src/webapp: $(OBJ_FILES)
 	gcc $(LDFLAGS) $(OBJ_FILES) -o src/webapp
 
-test/test: $(TEST_OBJ_FILES)
-	gcc $(TEST_OBJ_FILES) -o test/test
+test/test: $(TEST_OBJ_FILES) $(TESTED_OBJ_FILES)
+	gcc $(TEST_OBJ_FILES) $(TESTED_OBJ_FILES) -o test/test
 
-%.o: %.asm
+src/%.o: src/%.asm
 	nasm -Isrc/ -f elf64 -g -F dwarf $<
+
+test/%.o: test/%.asm
+	nasm -Isrc/ -Itest/ -f elf64 -g -F dwarf $<
 
 test: test/test
 	./test/test
