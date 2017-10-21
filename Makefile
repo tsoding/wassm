@@ -25,7 +25,7 @@ test/test: $(TEST_OBJ_FILES)
 	gcc $(TEST_OBJ_FILES) -o test/test
 
 %.o: %.asm
-	nasm -Isrc/ -f elf64 -g -F dwarf $<
+	nasm -Isrc/ -Itest/ -f elf64 -g -F dwarf $<
 
 test: test/test
 	./test/test
