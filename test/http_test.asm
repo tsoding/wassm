@@ -1,4 +1,5 @@
 %include "c.inc"
+%include "http.inc"
 
 SECTION .data
 
@@ -8,6 +9,11 @@ parse_method_test_fmt:
     db "  Running parse_method_test...", 10, 0
 parse_request_uri_test_fmt:
     db "  Running parse_request_uri_test_fmt...", 10, 0
+
+drop_sp_test_data:
+    db "     khooy"
+drop_sp_test_failed_fmt:
+    db "    Droped %d spaces instead of 5", 10, 0
 
 SECTION .text
 
@@ -21,6 +27,22 @@ drop_sp_test:
     mov rdi, drop_sp_test_fmt
     call printf
 
+    mov rdi, drop_sp_test_data
+    call drop_sp
+
+    cmp rax, drop_sp_test_data + 5
+    je drop_sp_test_passed
+
+    mov rdi, drop_sp_test_failed_fmt
+    mov rsi, rax
+    sub rsi, drop_sp_test_data
+    call printf
+
+    pop rbp
+    mov rax, 1
+    ret
+
+drop_sp_test_passed:
     pop rbp
     mov rax, 0
     ret
