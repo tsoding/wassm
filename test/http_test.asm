@@ -6,12 +6,12 @@ SECTION .data
 drop_sp_test_fmt:
     db "  Running drop_sp_test...", 10, 0
 parse_method_test_fmt:
-    db "  Running parse_method_test...", 10, 0
+    db "  Unimpleneted parse_method_test...", 10, 0
 parse_request_uri_test_fmt:
-    db "  Running parse_request_uri_test_fmt...", 10, 0
+    db "  Unimpleneted parse_request_uri_test...", 10, 0
 
 drop_sp_test_data:
-    db "     khooy"
+    db "     khooy", 0
 drop_sp_test_failed_fmt:
     db "    Droped %d spaces instead of 5", 10, 0
 
