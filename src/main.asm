@@ -7,8 +7,20 @@
 
 printf_string:
     db "%s", 10, 0
+
 client_socket_error:
     db "Error during reading from the client socket", 10, 0
+socket_result_error:
+    db "Could not create a server socket", 10, 0
+inet_aton_result_error:
+    db "Internet address is not correct: %s", 10, 0
+bind_result_error:
+    db "Could not bind address %s:%d", 10, 0
+listen_result_error:
+    db "Could not listen on the socket", 10, 0
+accept_result_error:
+    db "Could not accept the incoming connection", 10, 0
+
 server_started_message:
     db "The server was started on port %d", 10, 0
 html_served_message:
@@ -125,29 +137,81 @@ main:
     call atoi
     mov [port], rax
 
+;;; server_socket = socket(AF_INET, SOCK_STREAM, 0)
     mov rdi, AF_INET
     mov rsi, SOCK_STREAM
     mov rdx, 0
     call socket
     mov [server_socket], rax
-    ;; TODO(#8): handle error in creating a socket
+;;; ---
 
+    cmp rax, 0
+    jge .socket_result_check
+
+    mov rdi, 2
+    mov rsi, socket_result_error
+    call dprintf
+    jmp .end
+
+.socket_result_check:
+
+;;; port = htons(server_addr.sin_port)
     mov rdi, [port]
     call htons
     mov [server_addr + sockaddr_in.sin_port], rax
+;;; ---
 
+;;; inet_aton(ip_address, &server_addr.sin_addr)
     mov rdi, ip_address
     mov rsi, server_addr + sockaddr_in.sin_addr
     call inet_aton
+;;; ---
 
+    cmp rax, 0
+    jne .inet_aton_result_check
+
+    mov rdi, 2
+    mov rsi, inet_aton_result_error
+    mov rdx, ip_address
+    call dprintf
+    jmp .end
+
+.inet_aton_result_check:
+
+;;; bind(server_socket, &server_addr, 16)
     mov rdi, [server_socket]
     mov rsi, server_addr
     mov rdx, 16
     call bind
+;;; ---
 
+    cmp rax, 0
+    je .bind_result_check
+
+    mov rdi, 2
+    mov rsi, bind_result_error
+    mov rdx, ip_address
+    mov rcx, [port]
+    call dprintf
+    jmp .end
+
+.bind_result_check:
+
+;;; listen(server_socket, 50)
     mov rdi, [server_socket]
     mov rsi, 50
     call listen
+;;; ---
+
+    cmp rax, 0
+    je .listen_result_check
+
+    mov rdi, 2
+    mov rsi, listen_result_error
+    call dprintf
+    jmp .end
+
+.listen_result_check:
 
     mov rdi, server_started_message
     mov rsi, [port]
@@ -161,6 +225,16 @@ main:
     mov rdx, client_addr_size
     call accept
     mov [client_socket], rax
+
+    cmp rax, 0
+    jge .accept_result_check
+
+    mov rdi, 2
+    mov rsi, accept_result_error
+    call dprintf
+    jmp .end
+
+.accept_result_check:
 
 ;;; printf(html_served_message, inet_ntoa(client_addr.sin_addr))
     mov rdi, [client_addr + sockaddr_in.sin_addr]
@@ -280,6 +354,7 @@ main:
     mov rdi, [server_socket]
     call close
 
+.end:
     pop rbp
 
     mov rax, 0
