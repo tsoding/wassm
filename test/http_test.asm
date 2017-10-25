@@ -6,7 +6,7 @@ SECTION .data
 drop_sp_test_fmt:
     db "  Running drop_sp_test...", 10, 0
 parse_method_test_fmt:
-    db "  Unimpleneted parse_method_test...", 10, 0
+    db "  Running parse_method_test...", 10, 0
 parse_request_uri_test_fmt:
     db "  Unimpleneted parse_request_uri_test...", 10, 0
 
@@ -14,6 +14,11 @@ drop_sp_test_data:
     db "     khooy", 0
 drop_sp_test_failed_fmt:
     db "    Droped %d spaces instead of 5", 10, 0
+
+parse_method_test_data:
+    db "GET khooy"
+parse_method_test_failed_fmt:
+    db "    Parsed %d characters instead of 3", 10, 0
 
 SECTION .text
 
@@ -53,6 +58,23 @@ parse_method_test:
     mov rdi, parse_method_test_fmt
     call printf
 
+    mov rdi, parse_method_test_data
+    call parse_method
+
+    cmp rax, parse_method_test_data + 3
+    je .passed
+
+    mov rdi, 2
+    mov rsi, parse_method_test_failed_fmt
+    mov rdx, rax
+    sub rdx, parse_method_test_data
+    call dprintf
+
+    pop rbp
+    mov rax, 1
+    ret
+
+.passed:
     pop rbp
     mov rax, 0
     ret
