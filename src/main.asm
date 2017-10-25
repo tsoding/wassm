@@ -107,7 +107,7 @@ main:
     mov [argv], rsi
 
     cmp qword [argc], 2
-    jge args_check
+    jge .args_check
     ;; if argc < 2 then
     ;; begin
     mov rdi, 2
@@ -119,7 +119,7 @@ main:
     mov rax, 1
     ret
     ;; end
-args_check:
+.args_check:
     mov rdi, [argv]
     mov rdi, [rdi + 8]
     call atoi
@@ -155,7 +155,7 @@ args_check:
     call printf
 
     ;; TODO(#9): safely quit on SIGINT
-loop:
+.loop:
     mov rdi, [server_socket]
     mov rsi, client_addr
     mov rdx, client_addr_size
@@ -228,7 +228,7 @@ loop:
     mov rsi, index_route
     call strcmp
     cmp rax, 0
-    jne check_css_route
+    jne .check_css_route
 
 ;;; dprintf(client_socket, http, html_content_type, html_size, html)
     mov rdi, [client_socket],
@@ -239,14 +239,14 @@ loop:
     mov rax, 0
     call dprintf
 ;;; --
-    jmp close_socket
+    jmp .close_socket
 
-check_css_route:
+.check_css_route:
     mov rdi, [request_parsing_ptr]
     mov rsi, css_route
     call strcmp
     cmp rax, 0
-    jne not_found
+    jne .not_found
 
 ;;; dprintf(client_socket, http, css_size, css)
     mov rdi, [client_socket],
@@ -257,9 +257,9 @@ check_css_route:
     mov rax, 0
     call dprintf
 ;;; --
-    jmp close_socket
+    jmp .close_socket
 
-not_found:
+.not_found:
 ;;; dprintf(client_socket, http, css_size, css)
     mov rdi, [client_socket],
     mov rsi, http_404
@@ -267,7 +267,7 @@ not_found:
     call dprintf
 ;;; --
 
-close_socket:
+.close_socket:
     mov rdi, [client_socket]
     call close
 
@@ -275,7 +275,7 @@ close_socket:
     ;; mov al, [prev_byte]
     ;; mov [rbx], al
 
-    jmp loop
+    jmp .loop
 
     mov rdi, [server_socket]
     call close
