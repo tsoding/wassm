@@ -16,6 +16,8 @@ inet_aton_result_error:
     db "Internet address is not correct: %s", 10, 0
 bind_result_error:
     db "Could not bind address %s:%d", 10, 0
+listen_result_error:
+    db "Could not listen to the socket", 10, 0
 
 server_started_message:
     db "The server was started on port %d", 10, 0
@@ -193,9 +195,21 @@ main:
 
 .bind_result_check:
 
+;;; listen(server_socket, 50)
     mov rdi, [server_socket]
     mov rsi, 50
     call listen
+;;; ---
+
+    cmp rax, 0
+    je .listen_result_check
+
+    mov rdi, 2
+    mov rsi, listen_result_error
+    call dprintf
+    jmp .end
+
+.listen_result_check:
 
     mov rdi, server_started_message
     mov rsi, [port]
