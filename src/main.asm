@@ -18,6 +18,8 @@ bind_result_error:
     db "Could not bind address %s:%d", 10, 0
 listen_result_error:
     db "Could not listen on the socket", 10, 0
+accept_result_error:
+    db "Could not accept the incoming connection", 10, 0
 
 server_started_message:
     db "The server was started on port %d", 10, 0
@@ -223,6 +225,16 @@ main:
     mov rdx, client_addr_size
     call accept
     mov [client_socket], rax
+
+    cmp rax, 0
+    jge .accept_result_check
+
+    mov rdi, 2
+    mov rsi, accept_result_error
+    call dprintf
+    jmp .end
+
+.accept_result_check:
 
 ;;; printf(html_served_message, inet_ntoa(client_addr.sin_addr))
     mov rdi, [client_addr + sockaddr_in.sin_addr]
