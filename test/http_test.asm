@@ -31,7 +31,7 @@ drop_sp_test:
     call drop_sp
 
     cmp rax, drop_sp_test_data + 5
-    je drop_sp_test_passed
+    je .passed
 
     mov rdi, drop_sp_test_failed_fmt
     mov rsi, rax
@@ -42,7 +42,7 @@ drop_sp_test:
     mov rax, 1
     ret
 
-drop_sp_test_passed:
+.passed:
     pop rbp
     mov rax, 0
     ret

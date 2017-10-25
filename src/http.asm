@@ -7,13 +7,13 @@
 
 drop_sp:
     cmp byte [rdi], 0x20
-    jne drop_sp_end
+    jne .end
 
     inc rdi
 
     jmp drop_sp
 
-drop_sp_end:
+.end:
     mov rax, rdi
     ret
 

@@ -25,20 +25,20 @@ main:
 
     call drop_sp_test
     cmp rax, 0
-    jne main_end
+    jne .end
     inc qword [counter]
 
     call parse_method_test
     cmp rax, 0
-    jne main_end
+    jne .end
     inc qword [counter]
 
     call parse_request_uri_test
     cmp rax, 0
-    jne main_end
+    jne .end
     inc qword [counter]
 
-main_end:
+.end:
 
     mov rdi, passed_tests_fmt
     mov rsi, [counter]
@@ -47,13 +47,13 @@ main_end:
     call printf
 
     cmp qword [counter], EXPECTED_TEST_COUNT
-    je main_passed
+    je .passed
 
     pop rbp
     mov rax, 1
     ret
 
-main_passed:
+.passed:
     pop rbp
     mov rax, 0
     ret
