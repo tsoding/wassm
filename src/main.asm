@@ -14,6 +14,8 @@ socket_result_error:
     db "Could not create a server socket", 10, 0
 inet_aton_result_error:
     db "Internet address is not correct: %s", 10, 0
+bind_result_error:
+    db "Could not bind address %s:%d", 10, 0
 
 server_started_message:
     db "The server was started on port %d", 10, 0
@@ -172,10 +174,24 @@ main:
 
 .inet_aton_result_check:
 
+;;; bind(server_socket, &server_addr, 16)
     mov rdi, [server_socket]
     mov rsi, server_addr
     mov rdx, 16
     call bind
+;;; ---
+
+    cmp rax, 0
+    je .bind_result_check
+
+    mov rdi, 2
+    mov rsi, bind_result_error
+    mov rdx, ip_address
+    mov rcx, [port]
+    call dprintf
+    jmp .end
+
+.bind_result_check:
 
     mov rdi, [server_socket]
     mov rsi, 50
