@@ -17,7 +17,7 @@ inet_aton_result_error:
 bind_result_error:
     db "Could not bind address %s:%d", 10, 0
 listen_result_error:
-    db "Could not listen to the socket", 10, 0
+    db "Could not listen on the socket", 10, 0
 
 server_started_message:
     db "The server was started on port %d", 10, 0
