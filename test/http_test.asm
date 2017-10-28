@@ -8,7 +8,7 @@ drop_sp_test_fmt:
 parse_method_test_fmt:
     db "  Running parse_method_test...", 10, 0
 parse_request_uri_test_fmt:
-    db "  Unimplemented parse_request_uri_test...", 10, 0
+    db "  Running parse_request_uri_test...", 10, 0
 
 drop_sp_test_failed_fmt:
     db "    Dropped %d spaces instead of 5", 10, 0
