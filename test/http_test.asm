@@ -88,6 +88,24 @@ parse_request_uri_test:
     mov rdi, parse_request_uri_test_fmt
     call printf
 
+    mov rdi, parse_request_uri_test_data
+    call parse_request_uri
+
+    cmp rax, parse_request_uri_test_data + 29
+    je .passed
+
+    mov rdi, 2
+    mov rsi, parse_failed_fmt
+    mov rdx, rax
+    sub rdx, parse_request_uri_test_data
+    mov rcx, 29
+    call dprintf
+
+    pop rbp
+    mov rax, 1
+    ret
+
+.passed:
     pop rbp
     mov rax, 0
     ret
