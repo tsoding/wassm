@@ -3,8 +3,11 @@
 ;;; -*- mode: nasm -*-
 SECTION .data
 
+;;; https://www.ietf.org/rfc/rfc2396.txt
 non_alnum_uri_chr:
-    db "/?=&", 0
+    db ";/?:@&=+$,"             ;reserved
+    db "-_.!~*'()"              ;unreserved
+    db "%", 0                   ;escaped
 
 SECTION .text
 global drop_sp
