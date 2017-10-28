@@ -16,6 +16,8 @@ extern strlen
 extern strcmp
 extern read
 extern isalpha
+extern isalnum
+extern strchr
 
 struc sockaddr_in
 .sin_family: resw 1
