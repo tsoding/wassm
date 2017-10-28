@@ -10,15 +10,17 @@ parse_method_test_fmt:
 parse_request_uri_test_fmt:
     db "  Unimplemented parse_request_uri_test...", 10, 0
 
-drop_sp_test_data:
-    db "     khooy", 0
 drop_sp_test_failed_fmt:
     db "    Dropped %d spaces instead of 5", 10, 0
+parse_failed_fmt:
+    db "    Parsed %d characters, but expect %d", 10, 0
 
+drop_sp_test_data:
+    db "     khooy", 0
 parse_method_test_data:
     db "GET khooy"
-parse_method_test_failed_fmt:
-    db "    Parsed %d characters instead of 3", 10, 0
+parse_request_uri_test_data:
+    db "/khooy/test?arg1=foo&arg2=bar  fsdjkf", 10, 0
 
 SECTION .text
 
@@ -65,9 +67,10 @@ parse_method_test:
     je .passed
 
     mov rdi, 2
-    mov rsi, parse_method_test_failed_fmt
+    mov rsi, parse_failed_fmt
     mov rdx, rax
     sub rdx, parse_method_test_data
+    mov rcx, 3
     call dprintf
 
     pop rbp
