@@ -51,7 +51,7 @@ html:
     db "<html>", 10
     db "  <head>", 10
     db "    <title>Hello, World</title>", 10
-    db "    <style> * { background: black; color: white } </style>", 10
+    db "    <link rel='stylesheet' href='/main.css' type='text/css' media='screen' />", 10
     db "  </head>", 10
     db "  <body>", 10
     db "    <h1>Cyka, blyat!</h1>", 10
@@ -63,8 +63,7 @@ html_content_type:
     db "text/html", 0
 
 css:
-    db "body { background: black }", 10
-    db "p { color: white }", 10, 0
+    db "* { background: black; color: red }", 10, 0
 css_size:   equ $-css-1
 css_content_type:
     db "text/css", 0
@@ -84,10 +83,6 @@ http_404:
 index_route:    db "/", 0
 css_route:  db "/main.css", 0
 
-request_buffer:
-    db "/", 0
-request_buffer_size: equ $-request_buffer
-
     SECTION .php
     SECTION .bss
 argc:
@@ -101,6 +96,10 @@ server_socket:
 client_socket:
     resq 1
 current_route:
+    resq 1
+request_buffer:
+    resb REQUEST_BUFFER_CAPACITY
+request_buffer_size:
     resq 1
 request_parsing_ptr:
     resq 1
@@ -247,16 +246,16 @@ main:
 ;;; --
 
 ;;; request_buffer_size = read(client_socket, request_buffer, REQUEST_BUFFER_CAPACITY)
-    ;; mov rdi, [client_socket]
-    ;; mov rsi, request_buffer
-    ;; mov rdx, REQUEST_BUFFER_CAPACITY
-    ;; call read
-    ;; mov [request_buffer_size], rax
+    mov rdi, [client_socket]
+    mov rsi, request_buffer
+    mov rdx, REQUEST_BUFFER_CAPACITY
+    call read
+    mov [request_buffer_size], rax
 ;;; --
 
 ;;; request_buffer[request_buffer_size] = 0
-    ;; mov rax, [request_buffer_size]
-    ;; mov byte [request_buffer + rax], 0
+    mov rax, [request_buffer_size]
+    mov byte [request_buffer + rax], 0
 ;;; --
 
 ;;; request_parsing_ptr = request_buffer
@@ -288,14 +287,14 @@ main:
 ;;; --
 
 ;;; prev_byte = *request_uri_end
-    ;; mov rax, [request_uri_end]
-    ;; mov al, [rax]
-    ;; mov byte [prev_byte], al
+    mov rax, [request_uri_end]
+    mov al, [rax]
+    mov byte [prev_byte], al
 ;;; --
 
 ;;; *request_uri_end = 0
-    ;; mov rax, [request_uri_end]
-    ;; mov byte [rax], 0
+    mov rax, [request_uri_end]
+    mov byte [rax], 0
 ;;; ---
 
     mov rdi, [request_parsing_ptr]
@@ -345,9 +344,9 @@ main:
     mov rdi, [client_socket]
     call close
 
-    ;; mov rbx, [request_uri_end]
-    ;; mov al, [prev_byte]
-    ;; mov [rbx], al
+    ; mov rbx, [request_uri_end]
+    ; mov al, [prev_byte]
+    ; mov [rbx], al
 
     jmp .loop
 
