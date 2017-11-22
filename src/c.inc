@@ -20,6 +20,7 @@ extern isalnum
 extern strchr
 extern signal
 extern exit
+extern setsockopt
 
 struc sockaddr_in
 .sin_family: resw 1
@@ -31,5 +32,7 @@ endstruc
 %define AF_INET 2
 %define SOCK_STREAM 1
 %define SOCK_NONBLOCK 2048
+%define SOL_SOCKET 1
+%define SO_REUSEADDR 2
 
 %define SIGINT 2

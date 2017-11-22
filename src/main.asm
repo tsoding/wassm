@@ -20,8 +20,6 @@ bind_result_error:
     db "Could not bind address %s:%d", 10, 0
 listen_result_error:
     db "Could not listen on the socket", 10, 0
-accept_result_error:
-    db "Could not accept the incoming connection", 10, 0
 
 server_started_message:
     db "The server was started on port %d", 10, 0
@@ -84,6 +82,8 @@ http_404:
     db "NOT FOUND", 0
 index_route:    db "/", 0
 css_route:  db "/main.css", 0
+reuseaddr_enabled:
+    dd 1
 
     SECTION .php
     SECTION .bss
@@ -147,10 +147,20 @@ main:
 ;;; server_socket = socket(AF_INET, SOCK_STREAM, 0)
     mov rdi, AF_INET
     mov rsi, SOCK_STREAM
+    or rsi, SOCK_NONBLOCK
     mov rdx, 0
     call socket
     mov [server_socket], rax
 ;;; ---
+
+;;; setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &reuseaddr_enabled, 4)
+    mov rdi, [server_socket],
+    mov rsi, SOL_SOCKET
+    mov rdx, SO_REUSEADDR
+    mov rcx, reuseaddr_enabled
+    mov r8, 4
+    call setsockopt
+;;; --
 
     cmp rax, 0
     jge .socket_result_check
@@ -233,19 +243,9 @@ main:
     call accept
 
     cmp rax, 0
-    jl .loop
+    jl .loop_end
 
     mov [client_socket], rax
-
-    cmp rax, 0
-    jge .accept_result_check
-
-    mov rdi, 2
-    mov rsi, accept_result_error
-    call dprintf
-    jmp .end
-
-.accept_result_check:
 
 ;;; printf(html_served_message, inet_ntoa(client_addr.sin_addr))
     mov rdi, [client_addr + sockaddr_in.sin_addr]
@@ -297,6 +297,11 @@ main:
     call parse_request_uri
     mov [request_uri_end], rax
 ;;; --
+
+;;; sleep(5)
+    mov rdi, 5
+    call sleep
+;;; ---
 
 ;;; prev_byte = *request_uri_end
     mov rax, [request_uri_end]
@@ -356,10 +361,7 @@ main:
     mov rdi, [client_socket]
     call close
 
-    ; mov rbx, [request_uri_end]
-    ; mov al, [prev_byte]
-    ; mov [rbx], al
-
+.loop_end:
     cmp byte [interrupted], 0
     je .loop
 
