@@ -8,6 +8,8 @@
 printf_string:
     db "%s", 10, 0
 
+signal_handler_message:
+    db "The application was interrupted by a user...", 10, 0
 client_socket_error:
     db "Error during reading from the client socket", 10, 0
 socket_result_error:
@@ -18,8 +20,6 @@ bind_result_error:
     db "Could not bind address %s:%d", 10, 0
 listen_result_error:
     db "Could not listen on the socket", 10, 0
-accept_result_error:
-    db "Could not accept the incoming connection", 10, 0
 
 server_started_message:
     db "The server was started on port %d", 10, 0
@@ -82,6 +82,8 @@ http_404:
     db "NOT FOUND", 0
 index_route:    db "/", 0
 css_route:  db "/main.css", 0
+reuseaddr_enabled:
+    dd 1
 
     SECTION .php
     SECTION .bss
@@ -107,6 +109,8 @@ request_uri_end:
     resq 1
 prev_byte:
     resb 1
+interrupted:
+    resb 1
 
     SECTION .text
     global main
@@ -116,6 +120,10 @@ main:
 
     mov [argc], rdi
     mov [argv], rsi
+
+    mov rdi, SIGINT
+    mov rsi, signal_handler
+    call signal
 
     cmp qword [argc], 2
     jge .args_check
@@ -139,10 +147,20 @@ main:
 ;;; server_socket = socket(AF_INET, SOCK_STREAM, 0)
     mov rdi, AF_INET
     mov rsi, SOCK_STREAM
+    or rsi, SOCK_NONBLOCK
     mov rdx, 0
     call socket
     mov [server_socket], rax
 ;;; ---
+
+;;; setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &reuseaddr_enabled, 4)
+    mov rdi, [server_socket],
+    mov rsi, SOL_SOCKET
+    mov rdx, SO_REUSEADDR
+    mov rcx, reuseaddr_enabled
+    mov r8, 4
+    call setsockopt
+;;; --
 
     cmp rax, 0
     jge .socket_result_check
@@ -223,17 +241,11 @@ main:
     mov rsi, client_addr
     mov rdx, client_addr_size
     call accept
-    mov [client_socket], rax
 
     cmp rax, 0
-    jge .accept_result_check
+    jl .loop_end
 
-    mov rdi, 2
-    mov rsi, accept_result_error
-    call dprintf
-    jmp .end
-
-.accept_result_check:
+    mov [client_socket], rax
 
 ;;; printf(html_served_message, inet_ntoa(client_addr.sin_addr))
     mov rdi, [client_addr + sockaddr_in.sin_addr]
@@ -344,11 +356,9 @@ main:
     mov rdi, [client_socket]
     call close
 
-    ; mov rbx, [request_uri_end]
-    ; mov al, [prev_byte]
-    ; mov [rbx], al
-
-    jmp .loop
+.loop_end:
+    cmp byte [interrupted], 0
+    je .loop
 
     mov rdi, [server_socket]
     call close
@@ -357,4 +367,15 @@ main:
     pop rbp
 
     mov rax, 0
+    ret
+
+signal_handler:
+    push rbp
+
+    mov rdi, signal_handler_message
+    call printf
+
+    mov byte [interrupted], 1
+
+    pop rbp
     ret
