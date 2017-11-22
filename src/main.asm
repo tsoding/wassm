@@ -8,6 +8,8 @@
 printf_string:
     db "%s", 10, 0
 
+signal_handler_message:
+    db "The application was interrupted by a user...", 10, 0
 client_socket_error:
     db "Error during reading from the client socket", 10, 0
 socket_result_error:
@@ -107,6 +109,8 @@ request_uri_end:
     resq 1
 prev_byte:
     resb 1
+interrupted:
+    resb 1
 
     SECTION .text
     global main
@@ -116,6 +120,10 @@ main:
 
     mov [argc], rdi
     mov [argv], rsi
+
+    mov rdi, SIGINT
+    mov rsi, signal_handler
+    call signal
 
     cmp qword [argc], 2
     jge .args_check
@@ -223,6 +231,10 @@ main:
     mov rsi, client_addr
     mov rdx, client_addr_size
     call accept
+
+    cmp rax, 0
+    jl .loop
+
     mov [client_socket], rax
 
     cmp rax, 0
@@ -348,7 +360,8 @@ main:
     ; mov al, [prev_byte]
     ; mov [rbx], al
 
-    jmp .loop
+    cmp byte [interrupted], 0
+    je .loop
 
     mov rdi, [server_socket]
     call close
@@ -357,4 +370,15 @@ main:
     pop rbp
 
     mov rax, 0
+    ret
+
+signal_handler:
+    push rbp
+
+    mov rdi, signal_handler_message
+    call printf
+
+    mov byte [interrupted], 1
+
+    pop rbp
     ret
