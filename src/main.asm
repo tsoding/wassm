@@ -298,11 +298,6 @@ main:
     mov [request_uri_end], rax
 ;;; --
 
-;;; sleep(5)
-    mov rdi, 5
-    call sleep
-;;; ---
-
 ;;; prev_byte = *request_uri_end
     mov rax, [request_uri_end]
     mov al, [rax]
