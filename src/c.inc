@@ -21,9 +21,13 @@ extern strchr
 extern signal
 extern exit
 extern setsockopt
+extern open
+extern fstat
+extern lseek
+extern sendfile
 
 struc sockaddr_in
-.sin_family: resw 1
+.sin_family: resw 1             ; resb 2
 .sin_port: resw 1
 .sin_addr: resd 1
 .sin_zero: resq 1
@@ -36,3 +40,9 @@ endstruc
 %define SO_REUSEADDR 2
 
 %define SIGINT 2
+
+%define O_RDONLY 0
+
+%define SEEK_SET 0
+%define SEEK_CUR 1
+%define SEEK_END 2

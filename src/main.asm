@@ -7,6 +7,8 @@
 
 printf_string:
     db "%s", 10, 0
+printf_int:
+    db "%d", 10, 0
 
 signal_handler_message:
     db "The application was interrupted by a user...", 10, 0
@@ -84,6 +86,12 @@ index_route:    db "/", 0
 css_route:  db "/main.css", 0
 reuseaddr_enabled:
     dd 1
+file_name:
+    db "./src/main.asm", 0
+index_html_file:
+    db "./static/index.html", 0
+main_css_file:
+    db "./static/main.css", 0
 
     SECTION .php
     SECTION .bss
@@ -315,15 +323,13 @@ main:
     cmp rax, 0
     jne .check_css_route
 
-;;; dprintf(client_socket, http, html_content_type, html_size, html)
-    mov rdi, [client_socket],
-    mov rsi, http
-    mov rdx, html_content_type
-    mov rcx, html_size
-    mov r8, html
-    mov rax, 0
-    call dprintf
-;;; --
+;;; http_serve_file(client_socket, html_content_type, index_html_file)
+    mov rdi, [client_socket]
+    mov rsi, html_content_type
+    mov rdx, index_html_file
+    call http_serve_file
+;;; ---
+
     jmp .close_socket
 
 .check_css_route:
@@ -333,15 +339,13 @@ main:
     cmp rax, 0
     jne .not_found
 
-;;; dprintf(client_socket, http, css_size, css)
-    mov rdi, [client_socket],
-    mov rsi, http
-    mov rdx, css_content_type
-    mov rcx, css_size
-    mov r8, css
-    mov rax, 0
-    call dprintf
-;;; --
+;;; http_serve_file(client_socket, css_content_type, main_css_file)
+    mov rdi, [client_socket]
+    mov rsi, css_content_type
+    mov rdx, main_css_file
+    call http_serve_file
+;;; ---
+
     jmp .close_socket
 
 .not_found:
