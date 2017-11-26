@@ -7,6 +7,8 @@
 
 printf_string:
     db "%s", 10, 0
+printf_int:
+    db "%d", 10, 0
 
 signal_handler_message:
     db "The application was interrupted by a user...", 10, 0
@@ -46,34 +48,12 @@ client_addr:
 client_addr_size:
     dd 16
 
-html:
-    db "<!DOCTYPE html>", 10
-    db "<html>", 10
-    db "  <head>", 10
-    db "    <title>Hello, World</title>", 10
-    db "    <link rel='stylesheet' href='/main.css' type='text/css' media='screen' />", 10
-    db "  </head>", 10
-    db "  <body>", 10
-    db "    <h1>Cyka, blyat!</h1>", 10
-    db "    <h2>Rush B</h2>", 10
-    db "  </body>", 10
-    db "</html>", 10, 0
-html_size: equ $-html-1
 html_content_type:
     db "text/html", 0
-
-css:
-    db "* { background: black; color: red }", 10, 0
-css_size:   equ $-css-1
 css_content_type:
     db "text/css", 0
 
-http:
-    db "HTTP/1.1 200 OK", 13, 10
-    db "Content-Type: %s", 13, 10
-    db "Content-Length: %d", 13, 10
-    db 13, 10
-    db "%s", 0
+;;; TODO(#55): Serve 404 response from a file instead of hardcoded content
 http_404:
     db "HTTP/1.1 404 Not found", 13, 10
     db "Content-Type: text/plain", 13, 10
@@ -84,6 +64,10 @@ index_route:    db "/", 0
 css_route:  db "/main.css", 0
 reuseaddr_enabled:
     dd 1
+index_html_file:
+    db "./static/index.html", 0
+main_css_file:
+    db "./static/main.css", 0
 
     SECTION .php
     SECTION .bss
@@ -315,15 +299,13 @@ main:
     cmp rax, 0
     jne .check_css_route
 
-;;; dprintf(client_socket, http, html_content_type, html_size, html)
-    mov rdi, [client_socket],
-    mov rsi, http
-    mov rdx, html_content_type
-    mov rcx, html_size
-    mov r8, html
-    mov rax, 0
-    call dprintf
-;;; --
+;;; http_serve_file(client_socket, html_content_type, index_html_file)
+    mov rdi, [client_socket]
+    mov rsi, html_content_type
+    mov rdx, index_html_file
+    call http_serve_file
+;;; ---
+
     jmp .close_socket
 
 .check_css_route:
@@ -333,15 +315,13 @@ main:
     cmp rax, 0
     jne .not_found
 
-;;; dprintf(client_socket, http, css_size, css)
-    mov rdi, [client_socket],
-    mov rsi, http
-    mov rdx, css_content_type
-    mov rcx, css_size
-    mov r8, css
-    mov rax, 0
-    call dprintf
-;;; --
+;;; http_serve_file(client_socket, css_content_type, main_css_file)
+    mov rdi, [client_socket]
+    mov rsi, css_content_type
+    mov rdx, main_css_file
+    call http_serve_file
+;;; ---
+
     jmp .close_socket
 
 .not_found:
