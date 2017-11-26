@@ -53,6 +53,7 @@ html_content_type:
 css_content_type:
     db "text/css", 0
 
+;;; TODO: Serve 404 response from a file instead of hardcoded content
 http_404:
     db "HTTP/1.1 404 Not found", 13, 10
     db "Content-Type: text/plain", 13, 10
