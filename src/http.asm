@@ -185,6 +185,7 @@ http_serve_file:
 ;;; --
 
 ;;; TODO(#53): Employ TCP_CORK option (see man 2 sendfile NOTES section)
+;;; TODO(#54): retry if sendfile has written fewer bytes then requested
 ;;; sendfile(socket_fd, file_fd, NULL, file_size);
     mov rdi, [rbp - 8]
     mov rsi, [rbp - 32]
@@ -193,7 +194,6 @@ http_serve_file:
     call sendfile
     cmp rax, 0
     jl .failed
-    ; TODO: retry if sendfile has written fewer bytes then requested
 ;;; --
 
 ;;; close(file_fd)
