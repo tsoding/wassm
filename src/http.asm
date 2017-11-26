@@ -171,7 +171,7 @@ http_serve_file:
     mov [rbp - 40], rax
 ;;; --
 
-    ; TODO: Employ TCP_CORK option (see man 2 sendfile NOTES section)
+
 
 ;;; dprintf(file_fd, http, content_type, file_size)
     mov rdi, [rbp - 8]
@@ -184,6 +184,7 @@ http_serve_file:
     jl .failed
 ;;; --
 
+;;; TODO(#53): Employ TCP_CORK option (see man 2 sendfile NOTES section)
 ;;; sendfile(socket_fd, file_fd, NULL, file_size);
     mov rdi, [rbp - 8]
     mov rsi, [rbp - 32]
