@@ -22,12 +22,11 @@ extern signal
 extern exit
 extern setsockopt
 extern open
-extern fstat
 extern lseek
 extern sendfile
 
 struc sockaddr_in
-.sin_family: resw 1             ; resb 2
+.sin_family: resw 1
 .sin_port: resw 1
 .sin_addr: resd 1
 .sin_zero: resq 1

@@ -86,8 +86,6 @@ index_route:    db "/", 0
 css_route:  db "/main.css", 0
 reuseaddr_enabled:
     dd 1
-file_name:
-    db "./src/main.asm", 0
 index_html_file:
     db "./static/index.html", 0
 main_css_file:
