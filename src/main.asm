@@ -48,34 +48,11 @@ client_addr:
 client_addr_size:
     dd 16
 
-html:
-    db "<!DOCTYPE html>", 10
-    db "<html>", 10
-    db "  <head>", 10
-    db "    <title>Hello, World</title>", 10
-    db "    <link rel='stylesheet' href='/main.css' type='text/css' media='screen' />", 10
-    db "  </head>", 10
-    db "  <body>", 10
-    db "    <h1>Cyka, blyat!</h1>", 10
-    db "    <h2>Rush B</h2>", 10
-    db "  </body>", 10
-    db "</html>", 10, 0
-html_size: equ $-html-1
 html_content_type:
     db "text/html", 0
-
-css:
-    db "* { background: black; color: red }", 10, 0
-css_size:   equ $-css-1
 css_content_type:
     db "text/css", 0
 
-http:
-    db "HTTP/1.1 200 OK", 13, 10
-    db "Content-Type: %s", 13, 10
-    db "Content-Length: %d", 13, 10
-    db 13, 10
-    db "%s", 0
 http_404:
     db "HTTP/1.1 404 Not found", 13, 10
     db "Content-Type: text/plain", 13, 10
