@@ -11,3 +11,5 @@ $ make
 $ make test
 $ ./src/webapp 8080
 ```
+
+The application serves files `./static/index.html` and `./static/main.css`.
