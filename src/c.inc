@@ -24,6 +24,7 @@ extern setsockopt
 extern open
 extern lseek
 extern sendfile
+extern usleep
 
 struc sockaddr_in
 .sin_family: resw 1

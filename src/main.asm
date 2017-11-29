@@ -337,6 +337,8 @@ main:
     call close
 
 .loop_end:
+    mov rdi, 10
+    call usleep
     cmp byte [interrupted], 0
     je .loop
 
