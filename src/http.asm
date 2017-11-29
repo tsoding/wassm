@@ -143,10 +143,49 @@ file_size:
     ret
 
 
-http_serve_file:
+sendfile_with_retry:
     push rbp
     mov rbp, rsp
     sub rsp, 32
+
+    mov [rbp - 8], rdi          ; socket_fd
+    mov [rbp - 16], rsi         ; file_fd
+    mov [rbp - 24], rdx         ; file_size
+    mov qword [rbp - 32], 0     ; offset
+
+.retry:
+;;; sendfile(socket_fd, file_fd, &offset, file_size);
+    mov rdi, [rbp - 8]
+    mov rsi, [rbp - 16]
+    lea rdx, [rbp - 32]
+    mov rcx, [rbp - 24]
+    call sendfile
+;;; ---
+
+    ; TODO: handle sendfile errors
+
+    cmp rax, 0
+    jl .fail
+
+    mov rax, [rbp - 32]
+    cmp rax, [rbp - 24]
+    jl .retry
+
+    mov rax, 0
+    mov rsp, rbp
+    pop rbp
+    ret
+
+.fail:
+    mov rax, -1
+    mov rsp, rbp
+    pop rbp
+    ret
+
+http_serve_file:
+    push rbp
+    mov rbp, rsp
+    sub rsp, 48
 
     mov [rbp - 8], rdi          ; socket_fd
     mov [rbp - 16], rsi         ; content_type
@@ -185,13 +224,11 @@ http_serve_file:
 ;;; --
 
 ;;; TODO(#53): Employ TCP_CORK option (see man 2 sendfile NOTES section)
-;;; TODO(#54): retry if sendfile has written fewer bytes then requested
-;;; sendfile(socket_fd, file_fd, NULL, file_size);
+;;; sendfile_with_retry(socket_fd, file_fd, file_size);
     mov rdi, [rbp - 8]
     mov rsi, [rbp - 32]
-    mov rdx, 0
-    mov rcx, [rbp - 40]
-    call sendfile
+    mov rdx, [rbp - 40]
+    call sendfile_with_retry
     cmp rax, 0
     jl .failed
 ;;; --
