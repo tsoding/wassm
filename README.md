@@ -2,6 +2,8 @@
 
 # WASSM
 
+**This project was created as a joke and an exercise in low level programming.**
+
 Web framework for x86_64 nasm.
 
 ## Quick Start
