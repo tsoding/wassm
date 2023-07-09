@@ -138,7 +138,7 @@ main:
 ;;; ---
 
 ;;; setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &reuseaddr_enabled, 4)
-    mov rdi, [server_socket],
+    mov rdi, [server_socket]
     mov rsi, SOL_SOCKET
     mov rdx, SO_REUSEADDR
     mov rcx, reuseaddr_enabled
@@ -326,7 +326,7 @@ main:
 
 .not_found:
 ;;; dprintf(client_socket, http, css_size, css)
-    mov rdi, [client_socket],
+    mov rdi, [client_socket]
     mov rsi, http_404
     mov rax, 0
     call dprintf
