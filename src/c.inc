@@ -11,7 +11,6 @@ extern bind
 extern close
 extern listen
 extern accept
-extern dprintf
 extern strlen
 extern strcmp
 extern read
